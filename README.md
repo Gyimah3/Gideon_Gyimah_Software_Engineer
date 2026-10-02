@@ -8,6 +8,9 @@ Prototype with fictional data. Not production deployment software.
 ## At a glance
 
 ```bash
+git clone https://github.com/Gyimah3/Gideon_Gyimah_Software_Engineer.git
+cd Gideon_Gyimah_Software_Engineer
+
 uv sync && (cd frontend && npm install && npm run build)
 uv run uvicorn backend.api.main:app --port 8010      # open http://127.0.0.1:8010/
 uv run pytest -q                                      # 25 tests
@@ -29,23 +32,25 @@ limitations, and what I verified by hand.
 
 ## Launch instructions
 
-Prerequisites: [uv](https://docs.astral.sh/uv/) and Node.js 18+. Both are already
-installed on this machine (`uv 0.12.1`, `node v24.5.0`).
+Prerequisites: [uv](https://docs.astral.sh/uv/) and Node.js 18 or newer. Developed
+against uv 0.12.1 and node v24.5.0.
 
-### Option A — single process (recommended for the demo)
+### Option A — single process (recommended)
 
 ```bash
-cd Zof_AI_Software_Engineer_Challenge
-uv sync                                # install Python dependencies
-cd frontend && npm install && npm run build && cd ..
+git clone https://github.com/Gyimah3/Gideon_Gyimah_Software_Engineer.git
+cd Gideon_Gyimah_Software_Engineer
+
+uv sync                                     # install Python dependencies
+(cd frontend && npm install && npm run build)   # build the UI once
 uv run uvicorn backend.api.main:app --port 8010
 ```
 
 Open **http://127.0.0.1:8010/**
 
-> Port 8010, not 8000: port 8000 was already occupied by an unrelated application
-> on this machine. Any free port works — pass a different `--port` and, for
-> Option B, update the proxy target in `frontend/vite.config.ts`.
+> Port 8010 rather than 8000 only because 8000 was taken on the machine this was
+> built on. Any free port works: pass a different `--port`, and for Option B also
+> update the proxy target in `frontend/vite.config.ts`.
 
 ### Option B — two processes (hot reload, for development)
 
