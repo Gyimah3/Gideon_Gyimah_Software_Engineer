@@ -1,0 +1,6 @@
+{
+  "release": "docs-only-v1",
+  "checks": [
+    { "id": "copy", "name": "UI text check", "required": false, "status": "passed", "evidence": "copy-review-301" }
+  ]
+}

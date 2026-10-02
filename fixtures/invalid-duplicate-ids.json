@@ -1,0 +1,7 @@
+{
+  "release": "dupes-v1",
+  "checks": [
+    { "id": "login", "name": "Customer login", "required": true, "status": "passed", "evidence": "run-501" },
+    { "id": "login", "name": "Login again", "required": true, "status": "passed", "evidence": "run-502" }
+  ]
+}

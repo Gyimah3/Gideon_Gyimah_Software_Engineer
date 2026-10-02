@@ -1,0 +1,46 @@
+Zof AI | Software Engineer Practical Exercise
+PROJECT: BUILD A RELEASE EVIDENCE CHECKER
+
+TIME
+75 minutes of work, followed by a 15-minute live demonstration. You will receive one additional requirement partway through.
+
+GOAL
+Build a small local web application that reads a JSON release report, shows its checks, and explains whether the release is READY or BLOCKED according to the rules below. The supplied sample is fictional. This is a completeness-checking prototype, not production deployment software.
+
+TOOLS AND SCOPE
+Use any language or framework you know and can run on this computer. Plain HTML, CSS, and JavaScript are sufficient. Internet, documentation, and AI coding tools are allowed. No paid service, cloud deployment, authentication, database, external API, or elaborate design is required. Do not use production credentials or confidential data.
+Choose a small solution you can finish and explain. List any AI/tools used, what you verified yourself, and known limitations.
+
+CORE REQUIREMENTS
+1. Accept JSON through a text box or file upload; one input method is enough.
+2. Display the release name and each check's id, name, required flag, status, and evidence.
+3. Display one prominent overall result: READY or BLOCKED.
+4. Show specific reasons for every blocking condition. Show optional checks that failed or were not run as warnings, not blockers.
+5. Let the user load different reports and recalculate without editing source code.
+6. Handle malformed JSON and invalid data clearly, without crashing or leaving an old READY result visible.
+
+DATA CONTRACT
+The root is an object with a nonblank release string and a checks array.
+Each check has a unique, nonblank string id; a nonblank string name; a required value that is a JSON boolean; a status that is exactly passed, failed, or not_run; and evidence that is a string or is absent.
+A malformed shape, duplicate id, wrong field type, or unknown status is invalid data and must produce BLOCKED with a useful validation message. Missing evidence is allowed in the schema but may block a required check under the rules below.
+
+READINESS RULES
+- At least one required check must exist. An empty checks array or a report with only optional checks is BLOCKED.
+- Every required check must have status passed.
+- Every required check must have nonblank evidence; whitespace-only evidence counts as missing.
+- Optional failed/not_run checks produce warnings but do not block an otherwise valid report.
+- Evidence is only a supplied reference string in this prototype. Do not fetch it or claim you verified its contents. No particular URL format is required.
+- Invalid data is always BLOCKED, including invalid data in an optional check.
+
+SUPPLIED SAMPLE
+See sample-release.json in this folder. Its expected initial result is BLOCKED because Payment workflow failed and Audit trail is missing evidence. UI text check should produce a warning, not an additional blocker.
+
+DELIVERABLES
+A. The working local application and its source code.
+B. A short README with exact launch instructions, assumptions, known limitations, and AI/tool use.
+C. At least five reproducible tests with inputs, expected results, and actual results. Automated tests are preferred; documented manual tests are acceptable. Cover both READY and BLOCKED behavior and invalid input.
+
+LIVE DEMONSTRATION
+Start the application from your saved instructions. Show the sample report, an all-required-checks-passing report, and invalid input. Explain the readiness logic and a test. Be prepared to make or explain a small change to your own code. Clearly distinguish completed functionality from planned work.
+
+Prioritize correct behavior, understandable code, and tests over visual polish. Partial work should still run, with limitations stated honestly.

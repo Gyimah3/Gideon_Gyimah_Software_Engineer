@@ -1,0 +1,33 @@
+{
+  "release": "customer-demo-v1",
+  "checks": [
+    {
+      "id": "login",
+      "name": "Customer login",
+      "required": true,
+      "status": "passed",
+      "evidence": "login-test-run-101"
+    },
+    {
+      "id": "payments",
+      "name": "Payment workflow",
+      "required": true,
+      "status": "failed",
+      "evidence": "payment-test-run-102"
+    },
+    {
+      "id": "audit",
+      "name": "Audit trail",
+      "required": true,
+      "status": "passed",
+      "evidence": ""
+    },
+    {
+      "id": "copy",
+      "name": "UI text check",
+      "required": false,
+      "status": "failed",
+      "evidence": ""
+    }
+  ]
+}

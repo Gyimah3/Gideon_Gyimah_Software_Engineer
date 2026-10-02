@@ -1,0 +1,2 @@
+  cd /Users/gideongyimah/dev/Gideon_Gyimah_Software_Engineer/Zof_AI_Software_Engineer_Challenge
+  uv run pytest -q

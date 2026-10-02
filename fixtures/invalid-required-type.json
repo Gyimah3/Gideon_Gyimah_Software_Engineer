@@ -1,0 +1,6 @@
+{
+  "release": "bad-types-v1",
+  "checks": [
+    { "id": "login", "name": "Customer login", "required": "true", "status": "passed", "evidence": "run-401" }
+  ]
+}

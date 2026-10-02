@@ -1,0 +1,9 @@
+{
+  "release": "customer-demo-v2",
+  "checks": [
+    { "id": "login", "name": "Customer login", "required": true, "status": "passed", "evidence": "login-test-run-201" },
+    { "id": "payments", "name": "Payment workflow", "required": true, "status": "passed", "evidence": "payment-test-run-202" },
+    { "id": "audit", "name": "Audit trail", "required": true, "status": "passed", "evidence": "audit-export-203" },
+    { "id": "copy", "name": "UI text check", "required": false, "status": "not_run", "evidence": "" }
+  ]
+}
