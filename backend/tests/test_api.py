@@ -63,7 +63,29 @@ def test_samples_endpoint_lists_demo_reports_with_their_raw_text() -> None:
     assert "customer-demo-v1" in supplied["raw"]
 
 
-def test_every_listed_sample_is_evaluable_and_matches_its_stated_verdict() -> None:
-    for sample in client.get("/api/samples").json():
-        body = post(sample["raw"])
-        assert body["verdict"] == sample["verdict"], sample["label"]
+# Expectations written here, independently of anything the endpoint computes, so a
+# fixture edited to contradict its own button label fails the suite.
+EXPECTED_SAMPLE_VERDICTS = {
+    "Supplied sample": "BLOCKED",
+    "All required passing": "READY",
+    "Malformed JSON": "BLOCKED",
+    "Invalid optional check": "BLOCKED",
+    "Only optional checks": "BLOCKED",
+}
+
+
+def test_every_configured_sample_is_offered_with_the_verdict_its_label_promises() -> None:
+    samples = {s["label"]: s for s in client.get("/api/samples").json()}
+
+    assert set(samples) == set(EXPECTED_SAMPLE_VERDICTS), "a sample file is missing"
+
+    for label, expected in EXPECTED_SAMPLE_VERDICTS.items():
+        assert samples[label]["verdict"] == expected, label
+        assert post(samples[label]["raw"])["verdict"] == expected, label
+
+
+def test_deeply_nested_json_returns_blocked_not_a_server_error() -> None:
+    body = post("[" * 200_000 + "]" * 200_000)
+
+    assert body["verdict"] == "BLOCKED"
+    assert body["validationErrors"] != []

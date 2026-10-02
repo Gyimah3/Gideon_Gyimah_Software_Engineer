@@ -8,7 +8,7 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -24,7 +24,7 @@ app = FastAPI(title="Release Evidence Checker", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_methods=["POST"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -85,3 +85,14 @@ if FRONTEND_DIST.is_dir():
     @app.get("/")
     def index() -> FileResponse:
         return FileResponse(FRONTEND_DIST / "index.html")
+
+else:  # pragma: no cover - a build-step reminder, not application behaviour
+
+    @app.get("/")
+    def missing_build() -> PlainTextResponse:
+        return PlainTextResponse(
+            "The frontend has not been built yet. Run:\n\n"
+            "    cd frontend && npm install && npm run build\n\n"
+            "then reload this page. The API at POST /api/evaluate works regardless.",
+            status_code=503,
+        )

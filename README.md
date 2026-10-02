@@ -13,7 +13,7 @@ cd Gideon_Gyimah_Software_Engineer
 
 uv sync && (cd frontend && npm install && npm run build)
 uv run uvicorn backend.api.main:app --port 8010      # open http://127.0.0.1:8010/
-uv run pytest -q                                      # 25 tests
+uv run pytest -q                                      # 27 tests
 ```
 
 - **Deliverables:** the app is `backend/` and `frontend/`; tests are `TESTS.md` and
@@ -66,7 +66,7 @@ Open **http://localhost:5173/**. Vite proxies `/api` to port 8010.
 ### Run the tests
 
 ```bash
-uv run pytest -q          # 25 tests
+uv run pytest -q          # 27 tests
 uv run mypy               # strict type check
 uv run ruff check backend # lint
 cd frontend && npm run typecheck
@@ -157,7 +157,7 @@ fires, then replaces it wholesale. There is no partial update path that could le
 an old verdict on screen.
 
 **Pure core, thin shell.** `backend/core/` performs no I/O and imports nothing from
-FastAPI. 20 of the 25 tests exercise it with no HTTP involved.
+FastAPI. 20 of the 27 tests exercise it with no HTTP involved.
 
 ---
 
@@ -186,8 +186,8 @@ FastAPI. 20 of the 25 tests exercise it with no HTTP involved.
   browser (see below) and its types are checked by `tsc --strict`. With more time,
   the next thing I would add is a Vitest + Testing Library test asserting that a
   BLOCKED result replaces a prior READY result in the DOM.
-- CORS allows `localhost:5173` only, which is correct for local development and
-  would need revisiting for any other origin.
+- CORS allows the Vite dev server only (`localhost:5173` and `127.0.0.1:5173`), for
+  GET and POST. Correct for local development; any other origin would need adding.
 - Very large reports are evaluated in one synchronous pass. Fine at the scale the
   brief implies; not streamed.
 
@@ -214,14 +214,14 @@ out of scope by instruction, not an oversight.
 
 ## What I verified myself
 
-- Ran `uv run pytest -q` → **25 passed**. I watched the core suite fail first
+- Ran `uv run pytest -q` → **27 passed**. I watched the core suite fail first
   (`ModuleNotFoundError: No module named 'backend.core.service'`) before any
   implementation existed.
 - Ran `uv run mypy` → **Success: no issues found in 13 source files**.
 - Ran `uv run ruff check backend` → **All checks passed**.
 - Ran `cd frontend && npm run build` → `tsc --noEmit` clean, Vite build succeeded.
-- Posted all 8 fixtures to the running API and read each verdict and reason by hand;
-  transcript in `TESTS.md`.
+- Posted the supplied sample and all 7 fixtures to the running API and read every
+  verdict and reason by hand; transcript in `TESTS.md` section B.
 - Drove the built UI in a real Chrome tab through nine cases and read the rendered
   DOM back each time: the sample report, an all-required-passing report, malformed
   JSON, a file loaded through the file input, each of the one-click Try buttons, the
@@ -229,7 +229,7 @@ out of scope by instruction, not an oversight.
   `readyBannerStillPresent: false`, which is direct evidence that invalid input does
   not leave an earlier READY result on screen. Full transcript in `TESTS.md` §C.
 
-**One honesty note on process:** three of the five tests in
+**One honesty note on process:** three of the six tests in
 `backend/tests/test_api.py` were written before their implementation but in the same
 step, so I did not watch those three fail in isolation. The 20 core tests in
 `test_rules.py` and `test_validation.py`, and the two later `/api/samples` tests,
@@ -243,7 +243,7 @@ backend/core/validation.py   Phase A -- data contract, collects all errors
 backend/core/rules.py        Phase B -- readiness rules
 backend/core/service.py      parse -> validate -> evaluate
 backend/api/main.py          POST /api/evaluate, GET /api/samples; serves the built UI
-backend/tests/               25 tests (8 rules, 12 validation, 5 api)
+backend/tests/               27 tests (8 rules, 13 validation, 6 api)
 frontend/src/App.tsx         state, submit, clears prior result first
 frontend/src/components/     VerdictBanner, ReasonList, CheckTable, InputPanel,
                              SampleBar, ResultSummary

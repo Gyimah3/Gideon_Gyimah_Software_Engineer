@@ -3,7 +3,8 @@
 Date: 2026-10-02
 Author: Gideon Gyimah
 Context: Zof AI Software Engineer practical exercise. 75 min build + 15 min demo.
-Status: design approved pending review; time-boxed, so this doc replaces a full spec.
+Status: written before implementation and reconciled against the code afterwards.
+Time-boxed, so this doc stands in for a full spec.
 
 ---
 
@@ -46,7 +47,7 @@ evidence. `copy` (optional, failed) is a warning, not a third blocker.
 | Lint + format | **ruff** | Lint and format in a single Rust binary. Replaces flake8 + isort + black. Near-zero config, instant feedback. |
 | Static types | **mypy --strict** on the core | The rules module is the entire risk surface. Strict mode catches `None` and `Any` leaks in validation before a test has to. |
 | Runtime type safety | **hand-rolled validator**, not pydantic coercion | The brief requires *rejecting* wrong field types. Pydantic's default behaviour coerces `"true"` to `True` and `1` to `True`, which would let invalid data pass as valid. Explicit `isinstance` checks are both correct and easy to demonstrate live. |
-| Tests | **pytest** | Parametrized cases map 1:1 to brief rules. Plus FastAPI `TestClient` for the endpoint contract. |
+| Tests | **pytest** | One named test per rule in the brief, so the test names read as the requirements. Plus FastAPI `TestClient` for the endpoint contract. |
 | API | **FastAPI** | Typed request and response models, auto `/docs` page useful in the demo, trivially testable. |
 | Frontend | **React + TypeScript + Vite** | Types mirror the API contract so a contract drift is a compile error. Vite dev server starts instantly. |
 | Frontend state | **plain `useState`**, no state library | One form, one result. A router or Redux would be bloat I could not justify in 60 minutes. |
@@ -61,7 +62,7 @@ backend/
   core/models.py        frozen dataclasses: Check, Report, Verdict, Result
   core/validation.py    pure: validate(raw: object) -> ValidationOutcome
   core/rules.py         pure: evaluate(report: Report) -> Result
-  api/main.py           POST /api/evaluate
+  api/main.py           POST /api/evaluate, GET /api/samples
   tests/test_validation.py
   tests/test_rules.py
   tests/test_api.py
@@ -175,7 +176,7 @@ no second opinion, no model in the loop.
 | Inference | None. No LLM, no heuristics, no scoring, no thresholds. |
 | Passes over data | One per phase. Validation walks the checks once; evaluation walks them once. |
 | Determinism | Same input always yields the same verdict and the same ordered reason list. |
-| Order of reasons | Stable: validation errors in document order; blockers in rule order then document order; warnings in document order. Makes tests exact-match rather than set-match. |
+| Order of reasons | Stable: validation errors in document order; blockers in rule order then document order; warnings in document order. The tests assert which reasons appear rather than their exact order, so the ordering is a property of the output a reader can rely on, not something the suite pins. |
 | Ambiguity handling | None permitted. Every rule in the brief is a total function over the typed input. Where the brief is silent (e.g. evidence format), we do nothing rather than infer. |
 | Explainability | Each blocker is generated at the site of the rule that produced it, so every line of output traces to one line of code. Required for the live demo. |
 
@@ -197,8 +198,7 @@ claim to have verified it. Noted in the README as a non-goal, not a limitation.
 
 ## 7. Test matrix
 
-Automated, pytest, parametrized where the shape repeats. Each case names the rule
-it pins.
+Automated, pytest. Each case is named after the rule it pins.
 
 | # | Input | Expected |
 |---|---|---|

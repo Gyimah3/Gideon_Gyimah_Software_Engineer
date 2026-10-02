@@ -22,6 +22,14 @@ def check_release(raw_text: str) -> Result:
             verdict="BLOCKED",
             validation_errors=[f"Invalid JSON: {exc.msg} (line {exc.lineno}, column {exc.colno})."],
         )
+    except RecursionError:
+        # json.loads raises this, not JSONDecodeError, once nesting exceeds the
+        # decoder's limit. Without this clause the API returns a 500, which would
+        # break the promise that invalid input is a verdict and never a crash.
+        return Result(
+            verdict="BLOCKED",
+            validation_errors=["Invalid JSON: nesting is too deep to parse."],
+        )
 
     outcome = validate(parsed)
     if outcome.report is None:

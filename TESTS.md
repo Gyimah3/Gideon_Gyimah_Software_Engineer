@@ -1,6 +1,6 @@
 # Tests
 
-Two layers: an automated suite (25 pytest cases) and a manual HTTP log over the
+Two layers: an automated suite (27 pytest cases) and a manual HTTP log over the
 running API. Both were run on 2026-10-02 and the actual output below is copied from
 the terminal, not retyped from memory.
 
@@ -8,8 +8,8 @@ the terminal, not retyped from memory.
 
 ```
 $ uv run pytest -q
-.......................                                                  [100%]
-25 passed, 1 warning in 0.17s
+...........................                                              [100%]
+27 passed, 1 warning in 0.17s
 ```
 
 (The one warning is a Starlette deprecation notice about `httpx` in its test client.
@@ -67,11 +67,13 @@ Every rule in the brief is pinned by a named test. `backend/tests/test_rules.py`
 | `test_a_ready_report_after_a_blocked_one_carries_no_state` | POST sample, then POST a READY report | second is READY with no leftover reasons | pass |
 
 | `test_samples_endpoint_lists_demo_reports_with_their_raw_text` | GET `/api/samples` | at least 4 samples, one labelled "Supplied sample", carrying its raw text | pass |
-| `test_every_listed_sample_is_evaluable_and_matches_its_stated_verdict` | every sample the endpoint offers, POSTed back to `/api/evaluate` | each one's actual verdict equals the verdict advertised on its button | pass |
+| `test_every_configured_sample_is_offered_with_the_verdict_its_label_promises` | every sample, checked against expectations written in the test file | the offered set matches exactly, and each sample's verdict equals the one hardcoded in `EXPECTED_SAMPLE_VERDICTS` | pass |
+| `test_deeply_nested_json_returns_blocked_not_a_server_error` | 200 000 nested arrays | HTTP 200 with BLOCKED, not a 500 | pass |
 
-The last of those is worth noting: the UI's one-click buttons advertise a verdict,
-and this test re-evaluates every one of them to prove the label is not a lie. If a
-fixture file changed, it would fail.
+The sample test holds its expectations in the test file rather than reading them
+back from the endpoint, so it is not comparing the implementation to itself. Proven
+by sabotage: flipping `fixtures/ready-release.json` to a failing report, and
+separately deleting `fixtures/optional-only.json`, each made it fail.
 
 `test_a_ready_report_after_a_blocked_one_carries_no_state` is the automated guard
 against a stale verdict on the server side; the browser-side guard was verified by
@@ -147,7 +149,7 @@ submit path and the rendering are identical either way.
 
 | # | Step | Expected | Actual |
 |---|---|---|---|
-| 1 | Paste `sample-release.json`, press **Check release** | red BLOCKED banner; 2 blocking reasons; 1 warning; table of 4 checks; `audit` and `copy` evidence shown as *missing* | confirmed by screenshot: `BLOCKED`, `Blocking reasons (2)` listing `payments` status failed and `audit` missing evidence, `Warnings (1)` listing `copy`, 4-row table, caption reading "Evidence values are supplied reference strings. They are not fetched or verified." |
+| 1 | Paste `sample-release.json`, press **Check release** | red BLOCKED banner; 2 blocking reasons; 1 warning; table of 4 checks; `audit` and `copy` evidence shown as *missing* | rendered text read back from the page: `BLOCKED`, `Blocking reasons (2)` listing `payments` status failed and `audit` missing evidence, `Warnings (1)` listing `copy`, 4-row table, caption reading "Evidence values are supplied reference strings. They are not fetched or verified." |
 | 2 | Replace with the all-required-passing report, press again | green READY banner; no blocking reasons; 1 warning | `READY \| blockers:none \| warn: Warnings (1) Optional check 'copy' (UI text check) has status not_run.` |
 | 3 | Replace with `{"release": "broken-v1", "checks": [`, press again | BLOCKED with the parse message; **the earlier READY banner gone**; no warnings section; no check table | `{"verdict":"BLOCKED","readyBannerStillPresent":false,"invalid":"Invalid data (1) Invalid JSON: Expecting value (line 1, column 37).","warningsSection":"none","checkTablePresent":false}` |
 | 4 | Load a file through the **Load JSON file** input (`invalid-duplicate-ids.json`) | textarea fills from the file; BLOCKED with the duplicate-id message | `{"textareaFilledFromFile":true,"verdict":"BLOCKED","invalid":"checks[1].id has a duplicate value 'login'; ids must be unique."}` |
@@ -155,7 +157,7 @@ submit path and the rendering are identical either way.
 | 6 | Click **All required passing**, then **Malformed JSON** | green READY replaced by BLOCKED; no stale banner; no table | ready: `{"verdict":"READY","summary":"3 required \u00b7 1 optional \u00b7 0 blocking \u00b7 1 warning"}` then broken: `{"verdict":"BLOCKED","readyStillThere":false,"table":false}` |
 | 7 | Click **Invalid optional check** | BLOCKED; the broken check is the optional one; warnings suppressed | `{"verdict":"BLOCKED","invalid":"checks[1].status must be one of passed, failed, not_run; got 'skipped'.","warnings":"none"}` |
 | 8 | Press `Cmd`+`Enter` inside the text box | checks without touching the button | verdict rendered: `BLOCKED` |
-| 9 | Empty text box | **Check release** is disabled | button `disabled` true, confirmed by screenshot |
+| 9 | Empty text box | **Check release** is disabled | button `disabled` property read back as true |
 
 Step 3 is the one that matters most: `readyBannerStillPresent: false` is direct
 evidence that invalid input does not leave an earlier READY result on screen.

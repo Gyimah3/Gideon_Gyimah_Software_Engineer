@@ -103,3 +103,11 @@ def test_validation_errors_name_the_path_of_the_offending_field() -> None:
     result = check_release(report(check(status="skipped")))
 
     assert any("checks[0].status" in e for e in result.validation_errors)
+
+
+def test_deeply_nested_json_is_blocked_not_a_crash() -> None:
+    """json.loads raises RecursionError, not JSONDecodeError, past a nesting depth."""
+    result = check_release("[" * 200_000 + "]" * 200_000)
+
+    assert result.verdict == "BLOCKED"
+    assert result.validation_errors != []
